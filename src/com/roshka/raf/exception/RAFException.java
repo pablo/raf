@@ -5,6 +5,7 @@ public class RAFException extends Exception {
 	public static final String ERRCODE_UNEXPECTED_EXCEPTION = "raf000";
 	public static final String ERRCODE_INVALID_PARAMETER = "raf100";
 	public static final String ERRCODE_INVALID_ROUTE = "raf200";
+	public static final String ERRCODE_INVALID_METHOD = "raf300";
 	
 
 	private String code;

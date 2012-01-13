@@ -27,8 +27,12 @@ public class RAFContext {
 		RAFContext rc = null;
 		if (contextClassName != null) {
 			try {
-				Class<RAFContext> contextClass = (Class<RAFContext>) Class.forName(contextClassName);
-				rc = contextClass.newInstance();
+				Class<?> contextClass = Class.forName(contextClassName);
+				if (contextClass.isAssignableFrom(RAFContext.class)) {
+					rc = (RAFContext) contextClass.newInstance();
+				} else {
+					rc = new RAFContext();
+				}
 			} catch (Throwable e) {
 				rc = new RAFContext();
 			}

@@ -1,7 +1,6 @@
 package com.roshka.raf;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
@@ -11,15 +10,15 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.gson.Gson;
 import com.roshka.raf.context.RAFContext;
+import com.roshka.raf.encoding.JSONEncoderHelper;
+import com.roshka.raf.encoding.XMLEncoderHelper;
 import com.roshka.raf.exception.RAFException;
 import com.roshka.raf.params.ParametersProcessor;
+import com.roshka.raf.route.RequestMethod;
 import com.roshka.raf.route.Route;
 import com.roshka.raf.route.RouteExecutorManager;
 import com.roshka.raf.route.RouteManager;
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.xml.DomDriver;
 
 /**
  * Servlet implementation class RouteServlet
@@ -50,29 +49,16 @@ public class RouteServlet extends HttpServlet {
 		RAFContext.initialize(config.getServletContext());
 	}
 	
-	private void sendJSONResponse(HttpServletRequest req, HttpServletResponse resp, Object o) 
-		throws IOException
+	/**
+	 * This is the common method that handles all request methods
+	 * @param req
+	 * @param resp
+	 * @throws ServletException
+	 * @throws IOException
+	 */
+	private void processRoute(HttpServletRequest req, HttpServletResponse resp)
+		throws ServletException, IOException
 	{
-		resp.setContentType("application/json");
-		resp.setCharacterEncoding("utf-8");
-		PrintWriter pw = resp.getWriter();
-		Gson gson = new Gson();
-		gson.toJson(o, pw);
-	}
-	
-	private void sendXMLResponse(HttpServletRequest req, HttpServletResponse resp, Object o) throws IOException
-	{
-		resp.setContentType("text/xml");
-		resp.setCharacterEncoding("utf-8");
-		DomDriver dd = new DomDriver("utf-8");
-		XStream xs = new XStream(dd);
-		xs.toXML(o, resp.getOutputStream());
-	}
-	
-	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
-		
 		
 		String pathInfo = req.getPathInfo();
 		
@@ -84,6 +70,8 @@ public class RouteServlet extends HttpServlet {
 		}
 		
 		Route r = RouteManager.getRoute(pathInfo);
+		
+		
 		SerializationType serializeIn = SerializationType.Json;
 		Object oResponse = null;
 		ServletContext sctx = getServletContext();
@@ -98,6 +86,11 @@ public class RouteServlet extends HttpServlet {
 			if (r == null) {
 				throw new RAFException(RAFException.ERRCODE_INVALID_ROUTE, String.format("Route [%s] does not exist", pathInfo)); 
 			} else {
+				// checks if route accepts method
+				if (!r.acceptsMethod(RequestMethod.fromString(req.getMethod()))) {
+					throw new RAFException(RAFException.ERRCODE_INVALID_METHOD, String.format("Route [%s] does not accept method [%s]", pathInfo, req.getMethod()));
+				}
+				
 				// process query parameters
 				ParametersProcessor pp = new ParametersProcessor(req, r);
 				Object[] params;
@@ -111,14 +104,50 @@ public class RouteServlet extends HttpServlet {
 		switch(serializeIn)
 		{
 		case Json:
-			sendJSONResponse(req, resp, oResponse);
+			JSONEncoderHelper.submitJSONResponse(req, resp, oResponse);
 			break;
 		case Xml:
-			sendXMLResponse(req, resp, oResponse);
+			XMLEncoderHelper.submitXMLResponse(req, resp, oResponse);
 			break;
 		}
-		
 	}
+	
+	@Override
+	protected void doDelete(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		processRoute(req, resp);
+	}
+	
+	@Override
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		processRoute(req, resp);
+	}
+	
+	@Override
+	protected void doHead(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		processRoute(req, resp);
+	}
+	
+	@Override
+	protected void doOptions(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		processRoute(req, resp);
+	}
+	
+	@Override
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		processRoute(req, resp);
+	}
+	
+	@Override
+	protected void doPut(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		processRoute(req, resp);
+	}
+	
 
 
 }
