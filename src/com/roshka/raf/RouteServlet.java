@@ -1,6 +1,7 @@
 package com.roshka.raf;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
@@ -11,8 +12,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.roshka.raf.context.RAFContext;
-import com.roshka.raf.encoding.JSONEncoderHelper;
-import com.roshka.raf.encoding.XMLEncoderHelper;
+import com.roshka.raf.encoding.BaseRAFEncoder;
+import com.roshka.raf.exception.RAFEncodingException;
 import com.roshka.raf.exception.RAFException;
 import com.roshka.raf.params.ParametersProcessor;
 import com.roshka.raf.route.RequestMethod;
@@ -49,6 +50,15 @@ public class RouteServlet extends HttpServlet {
 		RAFContext.initialize(config.getServletContext());
 	}
 	
+	private void printPanicError(HttpServletRequest req, HttpServletResponse resp, String panicMessage) throws IOException
+	{
+		resp.setContentType("text/plain");
+		resp.setCharacterEncoding("utf-8");
+		PrintWriter pw = resp.getWriter();
+		pw.write(panicMessage);
+		pw.flush();
+	}
+	
 	/**
 	 * This is the common method that handles all request methods
 	 * @param req
@@ -65,25 +75,28 @@ public class RouteServlet extends HttpServlet {
 		String extension = null;
 		int lastIndex = pathInfo.lastIndexOf('.');
 		if (lastIndex >= 0) {
-			extension = pathInfo.substring(lastIndex);
+			if (lastIndex < pathInfo.length()) {
+				extension = pathInfo.substring(lastIndex+1);
+			}
 			pathInfo = pathInfo.substring(0, lastIndex);
 		}
 		
 		Route r = RouteManager.getRoute(pathInfo);
 		
 		
-		SerializationType serializeIn = SerializationType.Json;
 		Object oResponse = null;
 		ServletContext sctx = getServletContext();
+		
 		RAFContext rctx = (RAFContext) sctx.getAttribute(RAFContext.RAF_CONTEXT_SERVLET_CONTEXT_KEY);
-		if (extension == null || extension.equalsIgnoreCase(".json")) {
-			// do nothing, default behaviour
-		} else if (extension.equalsIgnoreCase(".xml")) {
-			serializeIn = SerializationType.Xml;
-		}
+		if (extension == null)
+			extension = "json";
+		BaseRAFEncoder encoder = rctx.getEncoder(extension);
 		
 		try {
-			if (r == null) {
+			if (encoder == null) {
+				encoder = rctx.getDefaultEncoder();
+				throw new RAFException(RAFException.ERRCODE_UNREGISTERED_ENCODER, String.format("No encoder registered for extension [%s]", extension));
+			} else if (r == null) {
 				throw new RAFException(RAFException.ERRCODE_INVALID_ROUTE, String.format("Route [%s] does not exist", pathInfo)); 
 			} else {
 				// checks if route accepts method
@@ -100,16 +113,18 @@ public class RouteServlet extends HttpServlet {
 		} catch (RAFException e) {
 			oResponse = rctx.getGeneralError(e); 
 		}
-		
-		switch(serializeIn)
-		{
-		case Json:
-			JSONEncoderHelper.submitJSONResponse(req, resp, oResponse);
-			break;
-		case Xml:
-			XMLEncoderHelper.submitXMLResponse(req, resp, oResponse);
-			break;
+
+		try {
+			encoder.submitEncodedResponse(req, resp, oResponse);
+		} catch (RAFEncodingException e) {
+			oResponse = rctx.getGeneralError(e);
+			try {
+				encoder.submitEncodedResponse(req, resp, oResponse);
+			} catch (RAFEncodingException ei) {
+				printPanicError(req, resp, String.format("Can't encode encoding error: " + ei.getMessage()));
+			}
 		}
+		
 	}
 	
 	@Override
