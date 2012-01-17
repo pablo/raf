@@ -66,6 +66,7 @@ public class RouteManager {
 			ret.setDefaultValue(rpAnnotation.defaultValue());
 		}
 		ret.setDefaultValue(rpAnnotation.defaultValue());
+		ret.setDateFormat(rpAnnotation.dateFormat());
 		return ret;
 	}
 	

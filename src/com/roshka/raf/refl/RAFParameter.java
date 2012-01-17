@@ -5,6 +5,7 @@ public class RAFParameter {
 	private Class<?> clazz;
 	private String parameterName;
 	private String defaultValue;
+	private String dateFormat;
 	private boolean mandatory;
 	
 	public RAFParameter(Class<?> parameterClass, String parameterName)
@@ -35,6 +36,14 @@ public class RAFParameter {
 
 	public void setDefaultValue(String defaultValue) {
 		this.defaultValue = defaultValue;
+	}
+
+	public String getDateFormat() {
+		return dateFormat;
+	}
+
+	public void setDateFormat(String dateFormat) {
+		this.dateFormat = dateFormat;
 	}
 
 }

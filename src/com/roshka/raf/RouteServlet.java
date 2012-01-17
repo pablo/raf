@@ -26,12 +26,6 @@ import com.roshka.raf.route.RouteManager;
  */
 public class RouteServlet extends HttpServlet {
 	
-	enum SerializationType 
-	{
-		Xml,
-		Json
-	}
-		
 	private static final long serialVersionUID = 1L;
        
     /**

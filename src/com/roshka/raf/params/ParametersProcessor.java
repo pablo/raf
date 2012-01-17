@@ -48,80 +48,47 @@ public class ParametersProcessor {
 		return ret;
 	}
 	
-	private Object getValue(Class<?> clazz, String parameterName, String value) 
+	private Object getValue(Class<?> clazz, RAFParameter rp, String value) 
 		throws RAFException
 	{
+		String parameterName;
+		parameterName = rp.getParameterName();
+		
 		Object ret = null;
 		if (clazz.isPrimitive()) {
 			
 			if (clazz.equals(Byte.TYPE)) {
-				try {
-					ret = Byte.parseByte(value);
-				} catch (NumberFormatException e) {
-					throw new RAFException(RAFException.ERRCODE_INVALID_PARAMETER, String.format("Value [%s] can't be converted to byte parameter %s", value, parameterName));
-				}
+				ret = NumberProcessor.parseByte(parameterName, value);
 			} else if (clazz.equals(Short.TYPE)) {
-				try {
-					ret = Short.parseShort(value);
-				} catch (NumberFormatException e) {
-					throw new RAFException(RAFException.ERRCODE_INVALID_PARAMETER, String.format("Value [%s] can't be converted to short parameter %s", value, parameterName));
-				}
+				ret = NumberProcessor.parseShort(parameterName, value);
 			} else if (clazz.equals(Integer.TYPE)) {
-				try {
-					ret = Integer.parseInt(value);
-				} catch (NumberFormatException e) {
-					throw new RAFException(RAFException.ERRCODE_INVALID_PARAMETER, String.format("Value [%s] can't be converted to int parameter %s", value, parameterName));
-				}
+				ret = NumberProcessor.parseInt(parameterName, value);
 			} else if (clazz.equals(Long.TYPE)) {
-				try {
-					ret = Long.parseLong(value);
-				} catch (NumberFormatException e) {
-					throw new RAFException(RAFException.ERRCODE_INVALID_PARAMETER, String.format("Value [%s] can't be converted to long parameter %s", value, parameterName));
-				}
+				ret = NumberProcessor.parseShort(parameterName, value);
 			} else if (clazz.equals(Float.TYPE)) {
-				try {
-					ret = Float.parseFloat(value);
-				} catch (NumberFormatException e) {
-					throw new RAFException(RAFException.ERRCODE_INVALID_PARAMETER, String.format("Value [%s] can't be converted to float parameter %s", value, parameterName));
-				}
+				ret = NumberProcessor.parseFloat(parameterName, value);
 			} else if (clazz.equals(Double.TYPE)) {
-				try {
-					ret = Double.parseDouble(value);
-				} catch (NumberFormatException e) {
-					throw new RAFException(RAFException.ERRCODE_INVALID_PARAMETER, String.format("Value [%s] can't be converted to double parameter %s", value, parameterName));
-				}
+				ret = NumberProcessor.parseDouble(parameterName, value);
 			} else if (clazz.equals(Boolean.TYPE)) {
-				try {
-					ret = Boolean.parseBoolean(value);
-				} catch (NumberFormatException e) {
-					throw new RAFException(RAFException.ERRCODE_INVALID_PARAMETER, String.format("Value [%s] can't be converted to boolean parameter %s", value, parameterName));
-				}
+				ret = BooleanProcessor.parseBoolean(parameterName, value);
 			} else if (clazz.equals(Character.TYPE)) {
-				if (value.length() == 1) {
-					ret = value.charAt(0);
-				} else {
-					throw new RAFException(RAFException.ERRCODE_INVALID_PARAMETER, String.format("Value [%s] can't be converted to character parameter %s. Its length must be one.", value, parameterName));
-				}
+				ret = CharacterProcessor.parseCharacter(parameterName, value);
 			}
 			
 		} else {
 			if (clazz.equals(String.class)) {
 				ret = value;
 			} else if (clazz.equals(BigDecimal.class)) {
-				try {
-					ret = new BigDecimal(value);
-				} catch (NumberFormatException e) {
-					throw new RAFException(RAFException.ERRCODE_INVALID_PARAMETER, String.format("Value [%s] can't be converted to BigDecimal parameter %s.", value, parameterName));
-				}
+				ret = NumberProcessor.parseBigDecimal(parameterName, value);
 			} else if (clazz.equals(BigInteger.class)) {
-				try {
-					ret = new BigInteger(value);
-				} catch (NumberFormatException e) {
-					throw new RAFException(RAFException.ERRCODE_INVALID_PARAMETER, String.format("Value [%s] can't be converted to BigInteger parameter %s.", value, parameterName));
-				}
+				ret = NumberProcessor.parseBigInteger(parameterName, value);
+			} else if (clazz.equals(java.util.Date.class)) {
+				ret = DateProcessor.parseUtilDate(parameterName, rp.getDateFormat(), value);
+			} else if (clazz.equals(java.sql.Date.class)) {
+				ret = DateProcessor.parseSqlDate(parameterName, rp.getDateFormat(), value);
+			} else if (clazz.isAssignableFrom(java.util.Calendar.class)) {
+				ret = DateProcessor.parseCalendar(parameterName, rp.getDateFormat(), value);
 			}
-			
-			// Date
 			
 		}
 		return ret;
@@ -137,13 +104,13 @@ public class ParametersProcessor {
 			
 			// check mandatory parameter
 			if (paramValue == null && rafParameter.isMandatory()) {
-				throw new RAFException(RAFException.ERRCODE_INVALID_PARAMETER, String.format("Parameter %s is mandatory", rafParameter.getParameterName()));
+				throw new RAFException(RAFException.ERRCODE_INVALID_PARAMETER_VALUE, String.format("Parameter %s is mandatory", rafParameter.getParameterName()));
 			} else if (paramValue != null) {
-				objects.add(getValue(rafParameter.getClazz(), rafParameter.getParameterName(), paramValue));
+				objects.add(getValue(rafParameter.getClazz(), rafParameter, paramValue));
 			} else {
 				// add null (or default value parameter)
 				if (rafParameter.getDefaultValue() != null) {
-					objects.add(getValue(rafParameter.getClazz(), rafParameter.getParameterName(), rafParameter.getDefaultValue()));
+					objects.add(getValue(rafParameter.getClazz(), rafParameter, rafParameter.getDefaultValue()));
 				} else {
 					objects.add(getNullOrZero(rafParameter.getClazz()));
 				}
