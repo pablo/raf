@@ -23,6 +23,7 @@ import javax.servlet.ServletContext;
 
 import com.roshka.raf.annotations.RAFContext;
 import com.roshka.raf.annotations.RAFMethod;
+import com.roshka.raf.annotations.RAFRequest;
 import com.roshka.raf.refl.RAFParameter;
 
 public class RouteManager {
@@ -70,7 +71,7 @@ public class RouteManager {
 		return ret;
 	}
 	
-	private static void loadRoute(Class<?> clazz, List<Field> contextFields, Method m, RAFMethod rafMethodAnnotation) 
+	private static void loadRoute(Class<?> clazz, List<Field> contextFields, List<Field> requestFields, Method m, RAFMethod rafMethodAnnotation) 
 	{
 		com.roshka.raf.refl.RAFMethod rafMethod = new com.roshka.raf.refl.RAFMethod(m);
 		
@@ -93,7 +94,7 @@ public class RouteManager {
 				//params.add(new RAFParameter(parameterClass, parameterClass));
 		}
 		
-		Route r = new Route(rafMethodAnnotation.value(), clazz, rafMethod, params, contextFields, rafMethodAnnotation.acceptedMethods());
+		Route r = new Route(rafMethodAnnotation.value(), clazz, rafMethod, params, contextFields, requestFields, rafMethodAnnotation.acceptedMethods());
 		_routes.put(rafMethodAnnotation.value(), r);
 	}
 	
@@ -103,11 +104,18 @@ public class RouteManager {
 		Field[] fields = clazz.getDeclaredFields();
 //		clazz.get
 		List<Field> contextFields = new ArrayList<Field>();
+		List<Field> requestFields = new ArrayList<Field>();
 		for (Field field : fields) {
 			RAFContext rc = field.getAnnotation(RAFContext.class);
 			if (rc != null) {
 				if (field.getType().isAssignableFrom(com.roshka.raf.context.RAFContext.class)) {
 					contextFields.add(field);
+				}
+			}
+			RAFRequest rr = field.getAnnotation(RAFRequest.class);
+			if (rr != null) {
+				if (field.getType().isAssignableFrom(com.roshka.raf.request.RAFRequest.class)) {
+					requestFields.add(field);
 				}
 			}
 		}
@@ -116,7 +124,7 @@ public class RouteManager {
 		for (Method m : methods) {
 			RAFMethod rm = m.getAnnotation(RAFMethod.class);
 			if (rm != null) {
-				loadRoute(clazz, contextFields, m, rm);
+				loadRoute(clazz, contextFields, requestFields, m, rm);
 			}
 		}
 		

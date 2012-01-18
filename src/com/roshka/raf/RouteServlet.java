@@ -102,7 +102,7 @@ public class RouteServlet extends HttpServlet {
 				ParametersProcessor pp = new ParametersProcessor(req, r);
 				Object[] params;
 					params = pp.getParameters();
-					oResponse = RouteExecutorManager.executeRoute(rctx, r, params);
+					oResponse = RouteExecutorManager.executeRoute(rctx, req, resp, r, params);
 			}
 		} catch (RAFException e) {
 			oResponse = rctx.getGeneralError(e); 

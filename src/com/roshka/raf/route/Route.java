@@ -13,15 +13,17 @@ public class Route {
 	private RAFMethod actionMethod;
 	private List<RAFParameter> parameters;
 	private List<Field> contextFields;
+	private List<Field> requestFields;
 	private RequestMethod[] acceptedMethods;
 
-	public Route(String name, Class<?> clazz, RAFMethod method, List<RAFParameter> parameters, List<Field> contextFields, RequestMethod[] acceptedMethods)
+	public Route(String name, Class<?> clazz, RAFMethod method, List<RAFParameter> parameters, List<Field> contextFields, List<Field> requestFields, RequestMethod[] acceptedMethods)
 	{
 		this.name = name;
 		this.actionClass = clazz;
 		this.actionMethod = method;
 		this.parameters = parameters;
 		this.contextFields = contextFields;
+		this.requestFields = requestFields;
 		this.acceptedMethods = acceptedMethods;
 	}
 	
@@ -63,6 +65,10 @@ public class Route {
 			}
 		}
 		return ret;
+	}
+
+	public List<Field> getRequestFields() {
+		return requestFields;
 	}
 	
 }
