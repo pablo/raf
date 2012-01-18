@@ -52,7 +52,10 @@ public class DateProcessor {
 			java.util.Date ret = dateFormat.parse(value);
 			return ret;
 		} catch (ParseException e) {
-			throw new RAFException(RAFException.ERRCODE_INVALID_PARAMETER_VALUE, String.format("Value [%s] can't be converted to java.util.Date parameter %s"), e);
+			throw new RAFException(
+					RAFException.ERRCODE_INVALID_PARAMETER_VALUE, 
+					String.format("Value [%s] can't be converted to java.util.Date parameter %s with format [%s]", value, parameterName, format), e
+			);
 		}
 	}
 	
@@ -64,7 +67,10 @@ public class DateProcessor {
 			java.sql.Date ret = new java.sql.Date(dateFormat.parse(value).getTime());
 			return ret;
 		} catch (ParseException e) {
-			throw new RAFException(RAFException.ERRCODE_INVALID_PARAMETER_VALUE, String.format("Value [%s] can't be converted to java.sql.Date parameter %s"), e);
+			throw new RAFException(
+					RAFException.ERRCODE_INVALID_PARAMETER_VALUE,
+					String.format("Value [%s] can't be converted to java.sql.Date parameter %s with format [%s]", value, parameterName, format), e
+			);
 		}
 	}
 	
@@ -77,7 +83,10 @@ public class DateProcessor {
 			ret.setTime(dateFormat.parse(value));
 			return ret;
 		} catch (ParseException e) {
-			throw new RAFException(RAFException.ERRCODE_INVALID_PARAMETER_VALUE, String.format("Value [%s] can't be converted to java.util.Calendar parameter %s"), e);
+			throw new RAFException(
+					RAFException.ERRCODE_INVALID_PARAMETER_VALUE,
+					String.format("Value [%s] can't be converted to java.util.Calendar parameter %s with format [%s]", value, parameterName, format), e
+			);
 		}
 	}
 	

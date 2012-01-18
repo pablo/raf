@@ -109,7 +109,7 @@ public class ParametersProcessor {
 				objects.add(getValue(rafParameter.getClazz(), rafParameter, paramValue));
 			} else {
 				// add null (or default value parameter)
-				if (rafParameter.getDefaultValue() != null) {
+				if (!rafParameter.getDefaultValue().equalsIgnoreCase(Globals.DEFAULT_UNASSIGNED_PARAMETER)) {
 					objects.add(getValue(rafParameter.getClazz(), rafParameter, rafParameter.getDefaultValue()));
 				} else {
 					objects.add(getNullOrZero(rafParameter.getClazz()));

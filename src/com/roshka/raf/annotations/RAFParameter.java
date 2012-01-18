@@ -8,7 +8,7 @@ import com.roshka.raf.params.Globals;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RAFParameter {
 	boolean mandatory() default false;
-	String defaultValue() default "[unassigned]";
+	String defaultValue() default Globals.DEFAULT_UNASSIGNED_PARAMETER;
 	String dateFormat() default Globals.DEFAULT_DATE_FORMAT;
 	String name();
 }
