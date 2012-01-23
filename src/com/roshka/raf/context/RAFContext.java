@@ -33,7 +33,7 @@ public class RAFContext {
 		if (contextClassName != null) {
 			try {
 				Class<?> contextClass = Class.forName(contextClassName);
-				if (contextClass.isAssignableFrom(RAFContext.class)) {
+				if (RAFContext.class.isAssignableFrom(contextClass)) {
 					rc = (RAFContext) contextClass.newInstance();
 				} else {
 					rc = new RAFContext();

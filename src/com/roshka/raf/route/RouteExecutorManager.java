@@ -20,7 +20,7 @@ public class RouteExecutorManager {
 			_instance = r.getActionClass().newInstance();
 			List<Field> contextFields = r.getContextFields();
 			for (Field field : contextFields) {
-				field.set(_instance, rc);
+				field.set(_instance, field.getType().cast(rc));
 			}
 			List<Field> requestFields = r.getRequestFields();
 			if (requestFields != null && requestFields.size() > 0) {

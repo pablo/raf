@@ -108,7 +108,8 @@ public class RouteManager {
 		for (Field field : fields) {
 			RAFContext rc = field.getAnnotation(RAFContext.class);
 			if (rc != null) {
-				if (field.getType().isAssignableFrom(com.roshka.raf.context.RAFContext.class)) {
+				
+				if (com.roshka.raf.context.RAFContext.class.isAssignableFrom(field.getType())) {
 					contextFields.add(field);
 				}
 			}
