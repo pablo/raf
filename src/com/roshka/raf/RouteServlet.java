@@ -75,8 +75,9 @@ public class RouteServlet extends HttpServlet {
 			pathInfo = pathInfo.substring(0, lastIndex);
 		}
 		
-		Route r = RouteManager.getRoute(pathInfo);
 		
+		
+		Route r = RouteManager.getRoute(pathInfo);
 		
 		Object oResponse = null;
 		ServletContext sctx = getServletContext();

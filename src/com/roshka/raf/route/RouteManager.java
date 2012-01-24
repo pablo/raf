@@ -29,7 +29,8 @@ import com.roshka.raf.refl.RAFParameter;
 public class RouteManager {
 	
 	private static boolean _initialized;
-	private static Map<String, Route> _routes;
+	private static Map<String, Route> _routesMap;
+	private static List<Route> _rouitesList;
 	private static Set<CtClass> _classesToProcess;
 
 	public static void initialize(ServletContext ctx)
@@ -39,7 +40,8 @@ public class RouteManager {
 	}
  
 	private static void doInitialize(ServletContext ctx) {
-		_routes = new HashMap<String, Route>();
+		_routesMap = new HashMap<String, Route>();
+		_rouitesList = new ArrayList<Route>();
 		_classesToProcess = new HashSet<CtClass>();
 		String rp = ctx.getRealPath("WEB-INF/classes/");
 		loadClasses(new File(rp));
@@ -56,7 +58,7 @@ public class RouteManager {
 	
 	public static Route getRoute(String path)
 	{
-		return _routes.get(path);
+		return _routesMap.get(path);
 	}
 	
 	private static RAFParameter createRAFParameter(Class<?> clazz, com.roshka.raf.annotations.RAFParameter rpAnnotation)
@@ -73,6 +75,18 @@ public class RouteManager {
 	
 	private static void loadRoute(Class<?> clazz, List<Field> contextFields, List<Field> requestFields, Method m, RAFMethod rafMethodAnnotation) 
 	{
+		Route r = new Route(rafMethodAnnotation, contextFields, requestFields);
+		_rouitesList.add(r);
+		
+		if (_routesMap.containsKey(r.getName())) {
+			// duplicated route
+			r.addError(
+					RouteError.ROUTE_ERROR_CODE_DUPLICATED_ROUTE, 
+					String.format("Route [%s] is already registering. Skipping route for class [%s] and method [%s]", r.getName(), clazz.getName(), m.getName())
+			);
+			r.setStatus(Route.Status.RouteInvalid);
+		}
+		
 		Annotation[][] annotations = m.getParameterAnnotations();
 		List<RAFParameter> params = new ArrayList<RAFParameter>();
 		for (int i = 0; i < annotations.length; i++) {
@@ -82,20 +96,29 @@ public class RouteManager {
 			for (Annotation annotation : paramAnnotations) {
 				if (annotation instanceof com.roshka.raf.annotations.RAFParameter) {
 					rpAnnotation = (com.roshka.raf.annotations.RAFParameter) annotation;
+					break;
 				}
 			}
 			if (rpAnnotation != null)  {
 				params.add(createRAFParameter(parameterClass, rpAnnotation));
+			} else {
+				r.addError(
+						RouteError.ROUTE_ERROR_INVALID_ANNOTATION_PARAMETER, 
+						String.format("Parameter #%d of method [%s] of route [%s] must have a RAFParameter annotation", i, m.getName(), r.getName())
+				);
+				r.setStatus(Route.Status.RouteInvalid);
 			}
-			//else
-				// TODO: throws exception. invalid route.
-				//params.add(new RAFParameter(parameterClass, parameterClass));
 		}
 		
-		com.roshka.raf.refl.RAFMethod rafMethod = new com.roshka.raf.refl.RAFMethod(m, params);
+		if (r.getStatus() == Route.Status.RouteBuilding) {
+			com.roshka.raf.refl.RAFMethod rafMethod = new com.roshka.raf.refl.RAFMethod(m, params);
+			r.setActionMethod(rafMethod);
+			r.setActionClass(clazz);
+			// activating route...
+			r.setStatus(Route.Status.RouteActive);
+		}
 		
-		Route r = new Route(rafMethodAnnotation.value(), clazz, rafMethod, contextFields, requestFields, rafMethodAnnotation.acceptedMethods());
-		_routes.put(rafMethodAnnotation.value(), r);
+		_routesMap.put(r.getName(), r);
 	}
 	
 	private static void loadRoutesFromClass(Class<?> clazz) 
