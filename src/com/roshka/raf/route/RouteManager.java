@@ -73,8 +73,6 @@ public class RouteManager {
 	
 	private static void loadRoute(Class<?> clazz, List<Field> contextFields, List<Field> requestFields, Method m, RAFMethod rafMethodAnnotation) 
 	{
-		com.roshka.raf.refl.RAFMethod rafMethod = new com.roshka.raf.refl.RAFMethod(m);
-		
 		Annotation[][] annotations = m.getParameterAnnotations();
 		List<RAFParameter> params = new ArrayList<RAFParameter>();
 		for (int i = 0; i < annotations.length; i++) {
@@ -94,7 +92,9 @@ public class RouteManager {
 				//params.add(new RAFParameter(parameterClass, parameterClass));
 		}
 		
-		Route r = new Route(rafMethodAnnotation.value(), clazz, rafMethod, params, contextFields, requestFields, rafMethodAnnotation.acceptedMethods());
+		com.roshka.raf.refl.RAFMethod rafMethod = new com.roshka.raf.refl.RAFMethod(m, params);
+		
+		Route r = new Route(rafMethodAnnotation.value(), clazz, rafMethod, contextFields, requestFields, rafMethodAnnotation.acceptedMethods());
 		_routes.put(rafMethodAnnotation.value(), r);
 	}
 	

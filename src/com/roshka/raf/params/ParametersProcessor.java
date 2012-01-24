@@ -97,7 +97,7 @@ public class ParametersProcessor {
 	public Object[] getParameters()
 		throws RAFException
 	{
-		List<RAFParameter> rafParameters = route.getParameters();
+		List<RAFParameter> rafParameters = route.getActionMethod().getParameters();
 		List<Object> objects = new ArrayList<Object>();
 		for (RAFParameter rafParameter : rafParameters) {
 			String paramValue = req.getParameter(rafParameter.getParameterName());

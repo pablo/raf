@@ -4,24 +4,26 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 import com.roshka.raf.refl.RAFMethod;
-import com.roshka.raf.refl.RAFParameter;
 
 public class Route {
-	
-	private String name;
-	private Class<?> actionClass;
-	private RAFMethod actionMethod;
-	private List<RAFParameter> parameters;
-	private List<Field> contextFields;
-	private List<Field> requestFields;
-	private RequestMethod[] acceptedMethods;
 
-	public Route(String name, Class<?> clazz, RAFMethod method, List<RAFParameter> parameters, List<Field> contextFields, List<Field> requestFields, RequestMethod[] acceptedMethods)
+	// Basic Route Status & Information
+	
+	private String name; 						// route name. i.e.: '/some_action'  
+	private RAFMethod actionMethod;				// meta information about method
+	private Class<?> actionClass;				// class to instantiate to process this route
+
+	private RequestMethod[] acceptedMethods;	// list of accepted HTTP methods for this route
+
+	private List<Field> contextFields;			// annotated context fields
+	private List<Field> requestFields;			// annotated request fields
+	
+
+	public Route(String name, Class<?> clazz, RAFMethod method, List<Field> contextFields, List<Field> requestFields, RequestMethod[] acceptedMethods)
 	{
 		this.name = name;
 		this.actionClass = clazz;
 		this.actionMethod = method;
-		this.parameters = parameters;
 		this.contextFields = contextFields;
 		this.requestFields = requestFields;
 		this.acceptedMethods = acceptedMethods;
@@ -39,10 +41,6 @@ public class Route {
 		return actionMethod;
 	}
 
-	public List<RAFParameter> getParameters() {
-		return parameters;
-	}
-	
 	public List<Field> getContextFields() {
 		return contextFields;
 	}
