@@ -3,7 +3,7 @@ package com.roshka.raf.context;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.servlet.ServletContext;
+import javax.servlet.ServletConfig;
 
 import com.roshka.raf.beans.GeneralResponse;
 import com.roshka.raf.encoding.BaseRAFEncoder;
@@ -20,15 +20,15 @@ public class RAFContext {
 	private BaseRAFEncoder defaultEncoder;
 	private static boolean _initialized;
 	
-	public static void initialize(ServletContext ctx)
+	public static void initialize(ServletConfig cfg)
 	{
 		if (!_initialized)
-			doInitialize(ctx);
+			doInitialize(cfg);
 	}
 	
-	private static void doInitialize(ServletContext ctx)
+	private static void doInitialize(ServletConfig cfg)
 	{
-		String contextClassName = ctx.getInitParameter("raf_ctx_class");
+		String contextClassName = cfg.getInitParameter("raf_ctx_class");
 		RAFContext rc = null;
 		if (contextClassName != null) {
 			try {
@@ -45,7 +45,7 @@ public class RAFContext {
 			rc = new RAFContext();
 		}
 		rc.initialize();
-		ctx.setAttribute(RAF_CONTEXT_SERVLET_CONTEXT_KEY, rc);
+		cfg.getServletContext().setAttribute(RAF_CONTEXT_SERVLET_CONTEXT_KEY, rc);
 		_initialized = true;
 	}
 

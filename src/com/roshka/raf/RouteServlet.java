@@ -41,7 +41,7 @@ public class RouteServlet extends HttpServlet {
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
 		RouteManager.initialize(config.getServletContext());
-		RAFContext.initialize(config.getServletContext());
+		RAFContext.initialize(config);
 	}
 	
 	private void printPanicError(HttpServletRequest req, HttpServletResponse resp, String panicMessage) throws IOException
