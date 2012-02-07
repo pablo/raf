@@ -64,7 +64,7 @@ public class ParametersProcessor {
 			} else if (clazz.equals(Integer.TYPE)) {
 				ret = NumberProcessor.parseInt(parameterName, value);
 			} else if (clazz.equals(Long.TYPE)) {
-				ret = NumberProcessor.parseShort(parameterName, value);
+				ret = NumberProcessor.parseLong(parameterName, value);
 			} else if (clazz.equals(Float.TYPE)) {
 				ret = NumberProcessor.parseFloat(parameterName, value);
 			} else if (clazz.equals(Double.TYPE)) {
