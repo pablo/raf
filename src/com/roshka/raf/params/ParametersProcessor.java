@@ -2,6 +2,7 @@ package com.roshka.raf.params;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -104,7 +105,7 @@ public class ParametersProcessor {
 			
 			// check mandatory parameter
 			if (paramValue == null && rafParameter.isMandatory()) {
-				throw new RAFException(RAFException.ERRCODE_INVALID_PARAMETER_VALUE, String.format("Parameter %s is mandatory", rafParameter.getParameterName()));
+				throw new RAFException(HttpURLConnection.HTTP_BAD_REQUEST, RAFException.ERRCODE_INVALID_PARAMETER_VALUE, String.format("Parameter %s is mandatory", rafParameter.getParameterName()));
 			} else if (paramValue != null) {
 				objects.add(getValue(rafParameter.getClazz(), rafParameter, paramValue));
 			} else {

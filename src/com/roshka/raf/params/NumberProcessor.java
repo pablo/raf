@@ -2,6 +2,7 @@ package com.roshka.raf.params;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.net.HttpURLConnection;
 
 import com.roshka.raf.exception.RAFException;
 
@@ -14,7 +15,7 @@ public class NumberProcessor {
 		try {
 			ret = Byte.parseByte(value);
 		} catch (NumberFormatException e) {
-			throw new RAFException(RAFException.ERRCODE_INVALID_PARAMETER_VALUE, String.format("Value [%s] can't be converted to byte parameter %s", value, parameterName));
+			throw new RAFException(HttpURLConnection.HTTP_BAD_REQUEST, RAFException.ERRCODE_INVALID_PARAMETER_VALUE, String.format("Value [%s] can't be converted to byte parameter %s", value, parameterName));
 		}
 		return ret;
 	}
@@ -26,7 +27,7 @@ public class NumberProcessor {
 		try {
 			ret = Short.parseShort(value);
 		} catch (NumberFormatException e) {
-			throw new RAFException(RAFException.ERRCODE_INVALID_PARAMETER_VALUE, String.format("Value [%s] can't be converted to short parameter %s", value, parameterName));
+			throw new RAFException(HttpURLConnection.HTTP_BAD_REQUEST, RAFException.ERRCODE_INVALID_PARAMETER_VALUE, String.format("Value [%s] can't be converted to short parameter %s", value, parameterName));
 		}
 		return ret;
 	}
@@ -38,7 +39,7 @@ public class NumberProcessor {
 		try {
 			ret = Integer.parseInt(value);
 		} catch (NumberFormatException e) {
-			throw new RAFException(RAFException.ERRCODE_INVALID_PARAMETER_VALUE, String.format("Value [%s] can't be converted to int parameter %s", value, parameterName));
+			throw new RAFException(HttpURLConnection.HTTP_BAD_REQUEST, RAFException.ERRCODE_INVALID_PARAMETER_VALUE, String.format("Value [%s] can't be converted to int parameter %s", value, parameterName));
 		}
 		return ret;
 	}
@@ -50,7 +51,7 @@ public class NumberProcessor {
 		try {
 			ret = Long.parseLong(value);
 		} catch (NumberFormatException e) {
-			throw new RAFException(RAFException.ERRCODE_INVALID_PARAMETER_VALUE, String.format("Value [%s] can't be converted to long parameter %s", value, parameterName));
+			throw new RAFException(HttpURLConnection.HTTP_BAD_REQUEST, RAFException.ERRCODE_INVALID_PARAMETER_VALUE, String.format("Value [%s] can't be converted to long parameter %s", value, parameterName));
 		}
 		return ret;
 	}
@@ -62,7 +63,7 @@ public class NumberProcessor {
 		try {
 			ret = Float.parseFloat(value);
 		} catch (NumberFormatException e) {
-			throw new RAFException(RAFException.ERRCODE_INVALID_PARAMETER_VALUE, String.format("Value [%s] can't be converted to float parameter %s", value, parameterName));
+			throw new RAFException(HttpURLConnection.HTTP_BAD_REQUEST, RAFException.ERRCODE_INVALID_PARAMETER_VALUE, String.format("Value [%s] can't be converted to float parameter %s", value, parameterName));
 		}
 		return ret;
 	}
@@ -74,7 +75,7 @@ public class NumberProcessor {
 		try {
 			ret = Double.parseDouble(value);
 		} catch (NumberFormatException e) {
-			throw new RAFException(RAFException.ERRCODE_INVALID_PARAMETER_VALUE, String.format("Value [%s] can't be converted to double parameter %s", value, parameterName));
+			throw new RAFException(HttpURLConnection.HTTP_BAD_REQUEST, RAFException.ERRCODE_INVALID_PARAMETER_VALUE, String.format("Value [%s] can't be converted to double parameter %s", value, parameterName));
 		}
 		return ret;
 	}
@@ -86,7 +87,7 @@ public class NumberProcessor {
 		try {
 			ret = new BigDecimal(value);
 		} catch (NumberFormatException e) {
-			throw new RAFException(RAFException.ERRCODE_INVALID_PARAMETER_VALUE, String.format("Value [%s] can't be converted to BigDecimal parameter %s.", value, parameterName));
+			throw new RAFException(HttpURLConnection.HTTP_BAD_REQUEST, RAFException.ERRCODE_INVALID_PARAMETER_VALUE, String.format("Value [%s] can't be converted to BigDecimal parameter %s.", value, parameterName));
 		}
 		return ret;
 	}
@@ -98,7 +99,7 @@ public class NumberProcessor {
 		try {
 			ret = new BigInteger(value);
 		} catch (NumberFormatException e) {
-			throw new RAFException(RAFException.ERRCODE_INVALID_PARAMETER_VALUE, String.format("Value [%s] can't be converted to BigInteger parameter %s.", value, parameterName));
+			throw new RAFException(HttpURLConnection.HTTP_BAD_REQUEST, RAFException.ERRCODE_INVALID_PARAMETER_VALUE, String.format("Value [%s] can't be converted to BigInteger parameter %s.", value, parameterName));
 		}
 		return ret;
 	}

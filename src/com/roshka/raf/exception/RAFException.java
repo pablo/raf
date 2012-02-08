@@ -11,28 +11,46 @@ public class RAFException extends Exception {
 	
 
 	private String code;
+	private int httpStatus;
 	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	
+	public RAFException(int httpStatus, String code, String message) {
+		this(httpStatus, code, message, null);
+	}
+
 
 	public RAFException(String code, String message) {
-		super(message);
-		this.code = code;
+		this(0, code, message, null);
 	}
 
 	public RAFException(String code, String message, Throwable t) {
-		super(message, t);
-		this.code = code;
+		this(0, code, message, t);
 	}
 
 	public String getCode() {
 		return code;
 	}
 
+	public RAFException(int httpStatus, String code, String message, Throwable t) {
+		super(message, t);
+		this.code = code;
+		this.httpStatus = httpStatus;
+	}
+	
 	public void setCode(String code) {
 		this.code = code;
+	}
+
+	public int getHttpStatus() {
+		return httpStatus;
+	}
+
+	public void setHttpStatus(int httpStatus) {
+		this.httpStatus = httpStatus;
 	}
 
 }

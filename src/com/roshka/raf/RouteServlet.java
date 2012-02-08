@@ -2,6 +2,7 @@ package com.roshka.raf;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.HttpURLConnection;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
@@ -16,6 +17,7 @@ import com.roshka.raf.encoding.BaseRAFEncoder;
 import com.roshka.raf.exception.RAFEncodingException;
 import com.roshka.raf.exception.RAFException;
 import com.roshka.raf.params.ParametersProcessor;
+import com.roshka.raf.request.RAFRequest;
 import com.roshka.raf.route.RequestMethod;
 import com.roshka.raf.route.Route;
 import com.roshka.raf.route.RouteExecutorManager;
@@ -83,6 +85,12 @@ public class RouteServlet extends HttpServlet {
 		ServletContext sctx = getServletContext();
 		
 		RAFContext rctx = (RAFContext) sctx.getAttribute(RAFContext.RAF_CONTEXT_SERVLET_CONTEXT_KEY);
+		RAFRequest rreq = new RAFRequest();
+		rreq.setRequest(req);
+		rreq.setResponse(resp);
+		rreq.setRafContext(rctx);
+		
+		// TODO: change default depending on headers
 		if (extension == null)
 			extension = "json";
 		BaseRAFEncoder encoder = rctx.getEncoder(extension);
@@ -90,31 +98,40 @@ public class RouteServlet extends HttpServlet {
 		try {
 			if (encoder == null) {
 				encoder = rctx.getDefaultEncoder();
-				throw new RAFException(RAFException.ERRCODE_UNREGISTERED_ENCODER, String.format("No encoder registered for extension [%s]", extension));
+				// HTTP 400 
+				throw new RAFException(HttpURLConnection.HTTP_BAD_REQUEST, RAFException.ERRCODE_UNREGISTERED_ENCODER, String.format("No encoder registered for extension [%s]", extension));
 			} else if (r == null) {
-				throw new RAFException(RAFException.ERRCODE_INVALID_ROUTE, String.format("Route [%s] does not exist", pathInfo)); 
+				// HTTP 404 
+				throw new RAFException(HttpURLConnection.HTTP_NOT_FOUND, RAFException.ERRCODE_INVALID_ROUTE, String.format("Route [%s] does not exist", pathInfo)); 
 			} else {
 				// checks if route accepts method
 				if (!r.acceptsMethod(RequestMethod.fromString(req.getMethod()))) {
-					throw new RAFException(RAFException.ERRCODE_INVALID_METHOD, String.format("Route [%s] does not accept method [%s]", pathInfo, req.getMethod()));
+					// HTTP 405 
+					throw new RAFException(HttpURLConnection.HTTP_BAD_METHOD, RAFException.ERRCODE_INVALID_METHOD, String.format("Route [%s] does not accept method [%s]", pathInfo, req.getMethod()));
 				}
 				
 				// process query parameters
 				ParametersProcessor pp = new ParametersProcessor(req, r);
+				
 				Object[] params;
 					params = pp.getParameters();
-					oResponse = RouteExecutorManager.executeRoute(rctx, req, resp, r, params);
+					oResponse = RouteExecutorManager.executeRoute(rreq, r, params);
 			}
 		} catch (RAFException e) {
+			if (e.getHttpStatus() > 0) {
+				rreq.setHttpStatus(e.getHttpStatus());
+			}
 			oResponse = rctx.getGeneralError(e); 
 		}
 
+		// set status
+		rreq.getResponse().setStatus(rreq.getHttpStatus());
 		try {
-			encoder.submitEncodedResponse(req, resp, oResponse);
+			encoder.submitEncodedResponse(rreq, oResponse);
 		} catch (RAFEncodingException e) {
 			oResponse = rctx.getGeneralError(e);
 			try {
-				encoder.submitEncodedResponse(req, resp, oResponse);
+				encoder.submitEncodedResponse(rreq, oResponse);
 			} catch (RAFEncodingException ei) {
 				printPanicError(req, resp, String.format("Can't encode encoding error: " + ei.getMessage()));
 			}
