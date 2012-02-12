@@ -29,7 +29,7 @@ import com.roshka.raf.refl.RAFParameter;
 public class RouteManager {
 	
 	private static boolean _initialized;
-	private static Map<String, Route> _routesMap;
+	private static Map<String, List<Route>> _routesMap;
 	private static List<Route> _rouitesList;
 	private static Set<CtClass> _classesToProcess;
 
@@ -40,7 +40,7 @@ public class RouteManager {
 	}
  
 	private static void doInitialize(ServletContext ctx) {
-		_routesMap = new HashMap<String, Route>();
+		_routesMap = new HashMap<String, List<Route>>();
 		_rouitesList = new ArrayList<Route>();
 		_classesToProcess = new HashSet<CtClass>();
 		String rp = ctx.getRealPath("WEB-INF/classes/");
@@ -58,7 +58,19 @@ public class RouteManager {
 	
 	public static Route getRoute(String path)
 	{
-		return _routesMap.get(path);
+		
+		if (path == null)
+			return null;
+		
+		String[] routeParts = path.split("/");
+		
+		
+		
+		// TODO: calculate possible routes and return if a match is found
+		List<Route> possibleRoutes = _routesMap.get(path);
+		
+		//return _routesMap.get(path);
+		return null;
 	}
 	
 	private static RAFParameter createRAFParameter(Class<?> clazz, com.roshka.raf.annotations.RAFParameter rpAnnotation)
@@ -118,7 +130,8 @@ public class RouteManager {
 			r.setStatus(Route.Status.RouteActive);
 		}
 		
-		_routesMap.put(r.getName(), r);
+		// TODO: update data structures based on what we need
+		//_routesMap.put(r.getName(), r);
 	}
 	
 	private static void loadRoutesFromClass(Class<?> clazz) 
@@ -204,6 +217,33 @@ public class RouteManager {
             }
         }
 
+	}
+	
+	public static void main(String[] args)
+	{
+		String route = "/asdf/p1/p2/p3";
+		String[] routeParts = route.split("/");
+		
+		int i = 0;
+		for (String part : routeParts) {
+			System.out.println(String.format("a --> %02d: [%s]", i++, part));
+		}
+		
+		route = "asdf/p1/p2/p3";
+		routeParts = route.split("/");
+		i = 0;
+		for (String part : routeParts) {
+			System.out.println(String.format("b --> %02d: [%s]", i++, part));
+		}
+		
+		route = null;
+		routeParts = route.split("/");
+		i = 0;
+		for (String part : routeParts) {
+			System.out.println(String.format("c --> %02d: [%s]", i++, part));
+		}
+		
+		System.out.println("Salci, con jorge.");
 	}
 	
 }
