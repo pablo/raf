@@ -1,5 +1,6 @@
 package com.roshka.raf.params;
 
+import java.net.HttpURLConnection;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -53,6 +54,7 @@ public class DateProcessor {
 			return ret;
 		} catch (ParseException e) {
 			throw new RAFException(
+					HttpURLConnection.HTTP_BAD_REQUEST,
 					RAFException.ERRCODE_INVALID_PARAMETER_VALUE, 
 					String.format("Value [%s] can't be converted to java.util.Date parameter %s with format [%s]", value, parameterName, format), e
 			);
@@ -68,6 +70,7 @@ public class DateProcessor {
 			return ret;
 		} catch (ParseException e) {
 			throw new RAFException(
+					HttpURLConnection.HTTP_BAD_REQUEST,
 					RAFException.ERRCODE_INVALID_PARAMETER_VALUE,
 					String.format("Value [%s] can't be converted to java.sql.Date parameter %s with format [%s]", value, parameterName, format), e
 			);
@@ -84,6 +87,7 @@ public class DateProcessor {
 			return ret;
 		} catch (ParseException e) {
 			throw new RAFException(
+					HttpURLConnection.HTTP_BAD_REQUEST,
 					RAFException.ERRCODE_INVALID_PARAMETER_VALUE,
 					String.format("Value [%s] can't be converted to java.util.Calendar parameter %s with format [%s]", value, parameterName, format), e
 			);
