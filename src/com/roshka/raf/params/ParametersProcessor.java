@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -16,10 +17,13 @@ public class ParametersProcessor {
 
 	private HttpServletRequest req;
 	private Route route;
+	private Map<String, String> routeParameters;
 	
-	public ParametersProcessor(HttpServletRequest req, Route route) {
+	public ParametersProcessor(HttpServletRequest req, Route route, Map<String, String> routeParameters) {
+		
 		this.req = req;
 		this.route = route;
+		this.routeParameters = routeParameters;
 	}
 	
 	private Object getNullOrZero(Class<?> clazz)
@@ -101,7 +105,13 @@ public class ParametersProcessor {
 		List<RAFParameter> rafParameters = route.getActionMethod().getParameters();
 		List<Object> objects = new ArrayList<Object>();
 		for (RAFParameter rafParameter : rafParameters) {
-			String paramValue = req.getParameter(rafParameter.getParameterName());
+			
+			String paramValue = null;
+			// try to get value from pathinfo/route
+			paramValue = routeParameters.get(rafParameter.getParameterName());
+			if (paramValue == null)
+				// try to get value from request
+				paramValue = req.getParameter(rafParameter.getParameterName());
 			
 			// check mandatory parameter
 			if (paramValue == null && rafParameter.isMandatory()) {

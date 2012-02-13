@@ -1,6 +1,7 @@
 package com.roshka.raf.route;
 
 import java.lang.reflect.Field;
+import java.net.HttpURLConnection;
 import java.util.List;
 
 import com.roshka.raf.exception.RAFException;
@@ -27,7 +28,7 @@ public class RouteExecutorManager {
 			}
 			return r.getActionMethod().getMethod().invoke(_instance, params);
 		} catch (Throwable e) {
-			throw new RAFException(RAFException.ERRCODE_UNEXPECTED_EXCEPTION, "Unexpected Exception: " + e.getMessage());
+			throw new RAFException(HttpURLConnection.HTTP_INTERNAL_ERROR, RAFException.ERRCODE_UNEXPECTED_EXCEPTION, "Unexpected Exception: " + e.getMessage());
 		} 
 	}
 	

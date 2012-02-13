@@ -3,6 +3,8 @@ package com.roshka.raf;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
@@ -68,6 +70,9 @@ public class RouteServlet extends HttpServlet {
 		
 		String pathInfo = req.getPathInfo();
 		
+		if (pathInfo == null)
+			pathInfo = "";
+		
 		String extension = null;
 		int lastIndex = pathInfo.lastIndexOf('.');
 		if (lastIndex >= 0) {
@@ -78,8 +83,8 @@ public class RouteServlet extends HttpServlet {
 		}
 		
 		
-		
-		Route r = RouteManager.getRoute(pathInfo);
+		Map<String, String> routeParameters = new HashMap<String, String>();
+		Route r = RouteManager.getRoute(pathInfo, routeParameters);
 		
 		Object oResponse = null;
 		ServletContext sctx = getServletContext();
@@ -111,7 +116,7 @@ public class RouteServlet extends HttpServlet {
 				}
 				
 				// process query parameters
-				ParametersProcessor pp = new ParametersProcessor(req, r);
+				ParametersProcessor pp = new ParametersProcessor(req, r, routeParameters);
 				
 				Object[] params;
 					params = pp.getParameters();

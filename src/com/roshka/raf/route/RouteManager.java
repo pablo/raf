@@ -30,7 +30,8 @@ public class RouteManager {
 	
 	private static boolean _initialized;
 	private static Map<String, List<Route>> _routesMap;
-	private static List<Route> _rouitesList;
+	private static Set<String> _routesSet;
+	private static List<Route> _routesList;
 	private static Set<CtClass> _classesToProcess;
 
 	public static void initialize(ServletContext ctx)
@@ -41,7 +42,8 @@ public class RouteManager {
  
 	private static void doInitialize(ServletContext ctx) {
 		_routesMap = new HashMap<String, List<Route>>();
-		_rouitesList = new ArrayList<Route>();
+		_routesSet = new HashSet<String>();
+		_routesList = new ArrayList<Route>();
 		_classesToProcess = new HashSet<CtClass>();
 		String rp = ctx.getRealPath("WEB-INF/classes/");
 		loadClasses(new File(rp));
@@ -56,21 +58,42 @@ public class RouteManager {
 		_initialized = true;
 	}
 	
-	public static Route getRoute(String path)
+	public static Route getRoute(String path, Map<String, String> routeParameters)
 	{
 		
 		if (path == null)
 			return null;
 		
-		String[] routeParts = path.split("/");
+		int i;
 		
+		String[] pathParts = path.split("/");
 		
+		String routeKey = null;
+		for (i=0; i<pathParts.length; i++) {
+			String routePart = pathParts[i];
+			if (routePart.length() > 0) {
+				routeKey = routePart;
+				break;
+			}
+		}
 		
-		// TODO: calculate possible routes and return if a match is found
-		List<Route> possibleRoutes = _routesMap.get(path);
+		// calculate possible routes and return if a match is found
+		List<Route> possibleRoutes = _routesMap.get(routeKey);
 		
-		//return _routesMap.get(path);
-		return null;
+		if (possibleRoutes == null)
+			// there are NO routes with this key
+			return null;
+		
+		Route matchingRoute = null;
+		for (Route r : possibleRoutes) 
+		{
+			if (r.matches(pathParts, routeParameters)) {
+				matchingRoute = r;
+				break;
+			}
+		}	
+		
+		return matchingRoute;
 	}
 	
 	private static RAFParameter createRAFParameter(Class<?> clazz, com.roshka.raf.annotations.RAFParameter rpAnnotation)
@@ -85,18 +108,33 @@ public class RouteManager {
 		return ret;
 	}
 	
+	private static void activateRoute(Route r)
+	{
+		// activate route
+		r.setStatus(Route.Status.RouteActive);
+		// add to active routes list with that key
+		List<Route> routes = _routesMap.get(r.getKey());
+		if (routes == null) {
+			routes = new ArrayList<Route>();
+			_routesMap.put(r.getKey(), routes);
+		}
+		routes.add(r);
+	}
+	
 	private static void loadRoute(Class<?> clazz, List<Field> contextFields, List<Field> requestFields, Method m, RAFMethod rafMethodAnnotation) 
 	{
 		Route r = new Route(rafMethodAnnotation, contextFields, requestFields);
-		_rouitesList.add(r);
+		_routesList.add(r);
 		
-		if (_routesMap.containsKey(r.getName())) {
+		if (_routesSet.contains(r.getName())) {
 			// duplicated route
 			r.addError(
 					RouteError.ROUTE_ERROR_CODE_DUPLICATED_ROUTE, 
 					String.format("Route [%s] is already registering. Skipping route for class [%s] and method [%s]", r.getName(), clazz.getName(), m.getName())
 			);
 			r.setStatus(Route.Status.RouteInvalid);
+		} else {
+			_routesSet.add(r.getName());
 		}
 		
 		Annotation[][] annotations = m.getParameterAnnotations();
@@ -127,11 +165,9 @@ public class RouteManager {
 			r.setActionMethod(rafMethod);
 			r.setActionClass(clazz);
 			// activating route...
-			r.setStatus(Route.Status.RouteActive);
+			activateRoute(r);
 		}
 		
-		// TODO: update data structures based on what we need
-		//_routesMap.put(r.getName(), r);
 	}
 	
 	private static void loadRoutesFromClass(Class<?> clazz) 
@@ -236,14 +272,16 @@ public class RouteManager {
 			System.out.println(String.format("b --> %02d: [%s]", i++, part));
 		}
 		
-		route = null;
+		route = "/// ///";
 		routeParts = route.split("/");
 		i = 0;
 		for (String part : routeParts) {
-			System.out.println(String.format("c --> %02d: [%s]", i++, part));
+			System.out.println(String.format("c --> %02d: [%s] [%d]", i++, part, part.length()));
 		}
 		
 		System.out.println("Salci, con jorge.");
 	}
+	
+	
 	
 }
