@@ -8,11 +8,14 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import javassist.CannotCompileException;
 import javassist.ClassPool;
@@ -46,7 +49,9 @@ public class RouteManager {
 		_routesList = new ArrayList<Route>();
 		_classesToProcess = new HashSet<CtClass>();
 		String rp = ctx.getRealPath("WEB-INF/classes/");
+		String rpwl = ctx.getRealPath("WEB-INF/lib/");
 		loadClasses(new File(rp));
+		loadClassesLib(new File(rpwl));
 		try {
 			loadRoutes();
 		} catch (CannotCompileException e) {
@@ -211,6 +216,55 @@ public class RouteManager {
 			Class<?> clazz = ctClass.toClass();
 			loadRoutesFromClass(clazz);
 		}
+	}
+	
+	private static void loadClassesLib(File directory)
+	{
+		// return if directory does not exist
+        if (!directory.exists()) {
+            return;
+        }
+        
+        File[] files = directory.listFiles();
+        for (File file : files) {
+            if (file.isDirectory()) {
+                loadClasses(file);
+            } else if (file.getName().endsWith(".jar")) {
+            	try {
+            		
+            		ZipFile zfile = new ZipFile(file);
+            		
+            		Enumeration<? extends ZipEntry> entries = zfile.entries();
+            		
+                	ClassPool cp = ClassPool.getDefault();
+            		while (entries.hasMoreElements()) {
+            			ZipEntry ze = entries.nextElement();
+                		if (ze.getName().endsWith(".class")) {
+                			// process class
+                			CtClass ctClass = cp.makeClass(zfile.getInputStream(ze));
+                        	CtMethod[] ctMethods = ctClass.getMethods();
+                        	for (CtMethod ctMethod : ctMethods) {
+                        		Object[] annotations = ctMethod.getAvailableAnnotations();
+                        		for (Object annotation : annotations) {
+                        			if (annotation instanceof RAFMethod) {
+                        				_classesToProcess.add(ctClass);
+                        				break;
+                        				
+                        			}
+                        		}
+                        	}
+                		}
+            		}
+            		
+            	} catch (Exception e) {
+            		// TODO: improve exception handling
+            		e.printStackTrace();
+            	}
+            	
+            	
+            }
+        }
+        
 	}
 	
 	private static void loadClasses(File directory)
