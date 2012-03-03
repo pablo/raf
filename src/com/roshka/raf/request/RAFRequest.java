@@ -47,5 +47,4 @@ public class RAFRequest {
 		this.httpStatus = httpStatus;
 	}
 	
-	
 }

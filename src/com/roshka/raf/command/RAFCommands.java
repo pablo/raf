@@ -7,12 +7,13 @@ public class RAFCommands {
 	@RAFMethod(value="/raf/version")
 	public String getVersion()
 	{
-		return "test version";
+		return "0.2";
 	}
 	
 	@RAFMethod(value="/raf/status")
 	public String getStatus()
 	{
+		
 		return "will return status";
 	}
 	
