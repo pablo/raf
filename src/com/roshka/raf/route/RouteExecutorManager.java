@@ -34,6 +34,8 @@ public class RouteExecutorManager {
 				InvocationTargetException ite = (InvocationTargetException)e;
 				if (ite.getTargetException() instanceof RAFException) {
 					throw (RAFException)ite.getTargetException();
+				} else {
+					throw new RAFException(HttpURLConnection.HTTP_INTERNAL_ERROR, RAFException.ERRCODE_UNEXPECTED_EXCEPTION, "Unexpected Exception: " + ite.getTargetException().getMessage());
 				}
 			} 				
 			throw new RAFException(HttpURLConnection.HTTP_INTERNAL_ERROR, RAFException.ERRCODE_UNEXPECTED_EXCEPTION, "Unexpected Exception: " + e.getMessage());
