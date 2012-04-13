@@ -91,6 +91,7 @@ public class RouteServlet extends HttpServlet {
 		
 		RAFContext rctx = (RAFContext) sctx.getAttribute(RAFContext.RAF_CONTEXT_SERVLET_CONTEXT_KEY);
 		RAFRequest rreq = new RAFRequest();
+		rreq.setDefaultStatus(req.getMethod());
 		rreq.setRequest(req);
 		rreq.setResponse(resp);
 		rreq.setRafContext(rctx);

@@ -17,7 +17,7 @@ public class RAFRequest {
 	public RAFRequest()
 	{
 		// status 200 by default
-		this.httpStatus = HttpURLConnection.HTTP_ACCEPTED;
+		this.httpStatus = HttpURLConnection.HTTP_OK;
 	}
 	
 	public HttpServletRequest getRequest() {
@@ -45,6 +45,19 @@ public class RAFRequest {
 
 	public void setHttpStatus(int httpStatus) {
 		this.httpStatus = httpStatus;
+	}
+	
+	public void setDefaultStatus(String method)
+	{
+		if (method.equals("GET")) {
+			setHttpStatus(HttpURLConnection.HTTP_OK);
+		} else if (method.equals("POST")) {
+			setHttpStatus(HttpURLConnection.HTTP_ACCEPTED);
+		} else if (method.equals("PUT")) {
+			setHttpStatus(HttpURLConnection.HTTP_NO_CONTENT);
+		} else if (method.equals("DELETE")) {
+			setHttpStatus(HttpURLConnection.HTTP_NO_CONTENT);
+		}
 	}
 	
 }
