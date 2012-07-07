@@ -101,6 +101,22 @@ public class RouteManager {
 		return matchingRoute;
 	}
 	
+	public static List<RouteInfo> getRoutesInfo()
+	{
+		List<RouteInfo> ret = new ArrayList<RouteInfo>();
+		for (List<Route> routes : _routesMap.values()) {
+			for (Route route : routes) {
+				RouteInfo ri = new RouteInfo();
+				ri.setRouteErrors(route.getRouteErrors());
+				ri.setKey(route.getKey());
+				ri.setName(route.getName());
+				ri.setStatus(route.getStatus());
+				ret.add(ri);
+			}
+		}
+		return ret;
+	}
+	
 	private static RAFParameter createRAFParameter(Class<?> clazz, com.roshka.raf.annotations.RAFParameter rpAnnotation)
 	{
 		RAFParameter ret = new RAFParameter(clazz, rpAnnotation.name());
@@ -113,10 +129,8 @@ public class RouteManager {
 		return ret;
 	}
 	
-	private static void activateRoute(Route r)
+	private static void mapRoute(Route r)
 	{
-		// activate route
-		r.setStatus(Route.Status.RouteActive);
 		// add to active routes list with that key
 		List<Route> routes = _routesMap.get(r.getKey());
 		if (routes == null) {
@@ -166,12 +180,13 @@ public class RouteManager {
 		}
 		
 		if (r.getStatus() == Route.Status.RouteBuilding) {
+			r.setStatus(Route.Status.RouteActive);
 			com.roshka.raf.refl.RAFMethod rafMethod = new com.roshka.raf.refl.RAFMethod(m, params);
 			r.setActionMethod(rafMethod);
 			r.setActionClass(clazz);
-			// activating route...
-			activateRoute(r);
 		}
+		// activating route...
+		mapRoute(r);
 		
 	}
 	

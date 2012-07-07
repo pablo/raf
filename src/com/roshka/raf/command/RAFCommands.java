@@ -1,20 +1,23 @@
 package com.roshka.raf.command;
 
+import java.util.List;
+
 import com.roshka.raf.annotations.RAFMethod;
+import com.roshka.raf.route.RouteInfo;
+import com.roshka.raf.route.RouteManager;
 
 public class RAFCommands {
 
 	@RAFMethod(value="/raf/version")
 	public String getVersion()
 	{
-		return "0.2";
+		return "0.3";
 	}
 	
 	@RAFMethod(value="/raf/status")
-	public String getStatus()
+	public List<RouteInfo> getStatus()
 	{
-		
-		return "will return status";
+		return RouteManager.getRoutesInfo();
 	}
 	
 }

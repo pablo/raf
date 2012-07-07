@@ -108,7 +108,10 @@ public class RouteServlet extends HttpServlet {
 				throw new RAFException(HttpURLConnection.HTTP_BAD_REQUEST, RAFException.ERRCODE_UNREGISTERED_ENCODER, String.format("No encoder registered for extension [%s]", extension));
 			} else if (r == null) {
 				// HTTP 404 
-				throw new RAFException(HttpURLConnection.HTTP_NOT_FOUND, RAFException.ERRCODE_INVALID_ROUTE, String.format("Route [%s] does not exist", pathInfo)); 
+				throw new RAFException(HttpURLConnection.HTTP_NOT_FOUND, RAFException.ERRCODE_INVALID_ROUTE, String.format("Route [%s] does not exist", pathInfo));
+			} else if (r.getStatus() != Route.Status.RouteActive) {
+				// HTTP 404 
+				throw new RAFException(HttpURLConnection.HTTP_BAD_REQUEST, RAFException.ERRCODE_INVALID_ROUTE, String.format("Route [%s] exists but is misconfigured", pathInfo));
 			} else {
 				// checks if route accepts method
 				if (!r.acceptsMethod(RequestMethod.fromString(req.getMethod()))) {
