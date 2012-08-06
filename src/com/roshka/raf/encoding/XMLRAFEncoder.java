@@ -18,6 +18,7 @@ public class XMLRAFEncoder extends BaseRAFEncoder {
 		resp.setCharacterEncoding("utf-8");
 		DomDriver dd = new DomDriver("utf-8");
 		XStream xs = new XStream(dd);
+		xs.setMode(XStream.NO_REFERENCES);
 		xs.toXML(o, resp.getOutputStream());
 	}
 

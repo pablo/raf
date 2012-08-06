@@ -11,7 +11,7 @@ public class RAFCommands {
 	@RAFMethod(value="/raf/version")
 	public String getVersion()
 	{
-		return "0.3";
+		return "0.3.1";
 	}
 	
 	@RAFMethod(value="/raf/status")
