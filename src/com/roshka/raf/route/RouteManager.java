@@ -44,23 +44,28 @@ public class RouteManager {
 	}
  
 	private static void doInitialize(ServletContext ctx) {
-		_routesMap = new HashMap<String, List<Route>>();
-		_routesSet = new HashSet<String>();
-		_routesList = new ArrayList<Route>();
-		_classesToProcess = new HashSet<CtClass>();
-		String rp = ctx.getRealPath("WEB-INF/classes/");
-		String rpwl = ctx.getRealPath("WEB-INF/lib/");
-		loadClasses(new File(rp));
-		loadClassesLib(new File(rpwl));
+		
 		try {
-			loadRoutes();
-		} catch (CannotCompileException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			_routesMap = new HashMap<String, List<Route>>();
+			_routesSet = new HashSet<String>();
+			_routesList = new ArrayList<Route>();
+			_classesToProcess = new HashSet<CtClass>();
+			String rp = ctx.getRealPath("WEB-INF/classes/");
+			String rpwl = ctx.getRealPath("WEB-INF/lib/");
+			loadClasses(new File(rp));
+			loadClassesLib(new File(rpwl));
+			try {
+				loadRoutes();
+			} catch (CannotCompileException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			_classesToProcess.clear();
+			_classesToProcess = null;
+			_initialized = true;
+		} catch (Throwable t) {
+			t.printStackTrace();
 		}
-		_classesToProcess.clear();
-		_classesToProcess = null;
-		_initialized = true;
 	}
 	
 	public static Route getRoute(String path, Map<String, String> routeParameters)
@@ -227,9 +232,13 @@ public class RouteManager {
 		throws CannotCompileException
 	{
 		for (CtClass ctClass : _classesToProcess) {
-			
 			Class<?> clazz = ctClass.toClass();
-			loadRoutesFromClass(clazz);
+			try {
+				loadRoutesFromClass(clazz);
+			} catch (Throwable t) {
+				System.err.print("Can't load route from class: " + ctClass.getName());
+				t.printStackTrace();
+			}
 		}
 	}
 	
@@ -313,7 +322,7 @@ public class RouteManager {
                 		}
                 	}
                 	
-            	} catch (Exception e) {
+            	} catch (Throwable e) {
             		// TODO: improve exception handling
             		e.printStackTrace();
             	}
