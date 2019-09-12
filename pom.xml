@@ -2,11 +2,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>py.com.roshka</groupId>
+	<groupId>com.roshka</groupId>
 	<artifactId>raf</artifactId>
 	<name>RAF</name>
 	<packaging>jar</packaging>
-	<version>0.2</version>
+	<version>0.3</version>
+	<properties>
+		<maven.compiler.source>1.5</maven.compiler.source>
+		<maven.compiler.target>1.5</maven.compiler.target>
+	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>tv.cntt</groupId>
@@ -39,4 +43,28 @@
 			<version>2.5</version>
 		</dependency>
 	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.3</version>
+			</plugin>
+		</plugins>
+	</build>
+
+	<distributionManagement>
+		<snapshotRepository>
+			<id>snapshots</id>
+			<name>libs-snapshot</name>
+			<url>https://phoebe.roshka.com/artifactory/libs-snapshot-local</url>
+		</snapshotRepository>
+		<repository>
+			<id>central</id>
+			<name>libs-release</name>
+			<url>https://phoebe.roshka.com/artifactory/libs-release-local</url>
+		</repository>
+	</distributionManagement>
+
 </project>
